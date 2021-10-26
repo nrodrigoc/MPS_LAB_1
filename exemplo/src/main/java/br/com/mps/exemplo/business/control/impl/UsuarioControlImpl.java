@@ -2,6 +2,8 @@ package br.com.mps.exemplo.business.control.impl;
 
 import br.com.mps.exemplo.Infra.UsuarioRepository;
 import br.com.mps.exemplo.business.control.UsuarioControl;
+import br.com.mps.exemplo.business.control.Validacao;
+import br.com.mps.exemplo.business.exception.ValidacaoException;
 import br.com.mps.exemplo.business.model.Usuario;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,6 @@ public class UsuarioControlImpl implements UsuarioControl {
         this.usuarioRepository = usuarioRepository;
     }
 
-
     @Override
     public Usuario deletaUsuarioPorUsername(String username) throws Exception {
         return usuarioRepository.deleteByUsername(username)
@@ -25,7 +26,16 @@ public class UsuarioControlImpl implements UsuarioControl {
 
     @Override
     public Usuario cadastraUsuario(String username, String password) {
-        return null;
+        try{
+            Validacao.validar(username, new ValidacaoUsername());
+            Validacao.validar(password, new ValidacaoPassword());
+
+            Usuario usuario = new Usuario(username, password);
+            return usuarioRepository.save(usuario);
+        }catch (ValidacaoException e){
+            System.out.println("Error -> " + e.getMessage());
+            return null;
+        }
     }
 
     @Override
